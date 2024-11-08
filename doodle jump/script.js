@@ -14,6 +14,10 @@ let doodlerRightImg;
 let doodlerLeftImg;
 
 
+//physics
+let velocityX = 0;
+
+
 let doodler = {
     img : null,
     x : doodlerX,  //position of doodler at start from x-axis
@@ -38,6 +42,29 @@ window.onload = function() {//this function will work after loading of entire we
    
        doodlerLeftImg = new Image();
        doodlerLeftImg.src = "./doodler-left.png";
-   
+
+       requestAnimationFrame(update);
+       document.addEventListener("keydown", moveDoodler);   
 }
+
+function update() {
+    requestAnimationFrame(update);
+    //clear canvas
+    context.clearRect(0, 0, board.width, board.height);
+    //doodler 
+    doodler.x += velocityX;
+    // drawing doodler again and again in loop
+    context.drawImage(doodler.img, doodler.x, doodler.y,doodler.width,doodler.height);
+    }
+    
+    function moveDoodler(e) {
+        if (e.code == "ArrowRight" || e.code == "KeyD") { //move right
+            velocityX = 4;
+            doodler.img = doodlerRightImg;
+        }
+        else if (e.code == "ArrowLeft" || e.code == "KeyA") { //move left
+            velocityX = -4;
+            doodler.img = doodlerLeftImg;
+        }
+    }
 
