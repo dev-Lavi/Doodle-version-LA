@@ -49,21 +49,30 @@ window.onload = function() {//this function will work after loading of entire we
 
 function update() {
     requestAnimationFrame(update);
-    //clear canvas
+    //clear canvas and prevent overlapping of image
     context.clearRect(0, 0, board.width, board.height);
-    //doodler 
+
     doodler.x += velocityX;
+
+    //As doodler pass right side of board
+    if(doodler.x > boardWidth)
+        doodler.x = 0;  // set position of doodler to zero(telepot to left side of canvas)
+
+    //when doodler passes left side of canvas
+    else if(doodler.x + doodler.width < 0)
+        doodler.x = boardWidth;   //telepot to end of canvas (right side)
+
     // drawing doodler again and again in loop
     context.drawImage(doodler.img, doodler.x, doodler.y,doodler.width,doodler.height);
     }
     
     function moveDoodler(e) {
         if (e.code == "ArrowRight" || e.code == "KeyD") { //move right
-            velocityX = 4;
+            velocityX = 2;
             doodler.img = doodlerRightImg;
         }
         else if (e.code == "ArrowLeft" || e.code == "KeyA") { //move left
-            velocityX = -4;
+            velocityX = -2;
             doodler.img = doodlerLeftImg;
         }
     }
