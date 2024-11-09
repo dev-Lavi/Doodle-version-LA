@@ -16,6 +16,15 @@ let doodlerLeftImg;
 
 //physics
 let velocityX = 0;
+let velocityY = 0;  //doodler jump speed
+let initialVelocityY = -8;  //starting velocity Y
+let gravity = 0.4;
+
+//platforms or grass
+let platformArray = [];
+let platformWidth = 60;
+let platformHeight = 18;
+let platformImg;
 
 
 let doodler = {
@@ -38,14 +47,22 @@ window.onload = function() {//this function will work after loading of entire we
        doodler.img = doodlerRightImg;
        doodlerRightImg.onload = function() {
        context.drawImage(doodler.img, doodler.x, doodler.y,doodler.width,doodler.height);
+
        }
    
        doodlerLeftImg = new Image();
        doodlerLeftImg.src = "./doodler-left.png";
 
+       platformImg = new Image();
+       platformImg.src = "./platform.png";
+      
+       velocityY = initialVelocityY;
+      
+       placePlatforms();
        requestAnimationFrame(update);
        document.addEventListener("keydown", moveDoodler);   
 }
+
 
 function update() {
     requestAnimationFrame(update);
@@ -62,8 +79,22 @@ function update() {
     else if(doodler.x + doodler.width < 0)
         doodler.x = boardWidth;   //telepot to end of canvas (right side)
 
+    velocityY += gravity;  //doodler falls down after jumping
+    doodler.y += velocityY;
+
     // drawing doodler again and again in loop
     context.drawImage(doodler.img, doodler.x, doodler.y,doodler.width,doodler.height);
+
+     //platforms
+      for(let i = 0; i < platformArray.length; i++){
+      let platform = platformArray[i];
+      if(detectCollision(doodler, platform)) {
+        velocityY = initialVelocityY;   //jumps on the platform
+      }
+      
+      context.drawImage(platform.img, platform.x, platform.y, platform.width, platform.height);
+     }
+    
     }
     
     function moveDoodler(e) {
@@ -77,3 +108,36 @@ function update() {
         }
     }
 
+function placePlatforms() {
+    platformArray = [];
+
+    //starting platforms
+    let platform = {
+        img : platformImg,
+        x : boardWidth/2,
+        y : boardHeight - 50,
+        width : platformWidth,
+        height : platformHeight
+    }
+
+    platformArray.push(platform);
+    
+        platform = {
+        img : platformImg,
+        x : boardWidth/2,
+        y : boardHeight - 150,
+        width : platformWidth,
+        height : platformHeight
+    }
+
+    platformArray.push(platform);
+
+}
+
+
+function detectCollision(a,b) {
+    return a.x < b.x + b.width &&    //a's top left corner doesn't reach b's top right corner 
+           a.x + a.width > b.x &&    //a's top right corner passes b's top left corner 
+           a.y < b.y + b.height &&   //a's top left corner doesn't reach b's bottom left corner    
+           a.y + a.height > b.y ;    //a's bottom left corner passes b's top left corner 
+}
