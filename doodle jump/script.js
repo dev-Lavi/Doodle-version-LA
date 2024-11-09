@@ -37,6 +37,10 @@ let platformHeight = 18;
 let platformImg;
 
 
+let score = 0;
+let maxScore = 0;
+let gameOver = false;
+
 
 //this function will work after loading of entire webpage and canvas(board)
 window.onload = function() {
@@ -69,6 +73,10 @@ window.onload = function() {
 function update() 
 {
     requestAnimationFrame(update);
+    if(gameOver) {
+        return;
+    }
+
     //clear canvas and prevent overlapping of image
     context.clearRect(0, 0, board.width, board.height);
 
@@ -85,7 +93,10 @@ function update()
 
     velocityY += gravity;  //doodler falls down after jumping
     doodler.y += velocityY;
-
+    
+    if(doodler.y > board.height){
+        gameOver = true;
+    }
     // drawing doodler again and again in loop
     context.drawImage(doodler.img, doodler.x, doodler.y,doodler.width,doodler.height);
 
@@ -110,17 +121,44 @@ function update()
         platformArray.shift();  //removes element from array
         newPlatform();   //replace with new platform on top
      }
+      
+      
+     //scores
+     updateScore();
+     context.fillStyle = "black";
+     context.font = "16px sans-serif";
+     context.fillText(score, 5, 20);
+
+     if(gameOver) {
+        context.fillText("Game Over: Press 'Space to Restart",boardWidth/7, boardHeight*7/8);
+     }
+
 }
     
 
 function moveDoodler(e) {
     if (e.code == "ArrowRight" || e.code == "KeyD") { //move right
-        velocityX = 2;
+        velocityX = 4;
         doodler.img = doodlerRightImg;
     }
     else if (e.code == "ArrowLeft" || e.code == "KeyA") { //move left
-        velocityX = -2;
+        velocityX = -4;
         doodler.img = doodlerLeftImg;
+    }
+    else if(e.code == "Space" && gameOver) {
+        let doodler = {
+            img : doodlerRightImg,
+            x : doodlerX,  //position of doodler at start from x-axis
+            y : doodlerY,
+            width : doodlerWidth,  //width of doodler
+            height : doodlerHeight
+        } 
+        
+        velocityX = 0;
+        velocityY = initialVelocityY;
+        score = 0;
+        gameOver = false;
+        placePlatforms();
     }
 }
 
@@ -175,4 +213,18 @@ function detectCollision(a,b) {
            a.x + a.width > b.x &&    //a's top right corner passes b's top left corner 
            a.y < b.y + b.height &&   //a's top left corner doesn't reach b's bottom left corner    
            a.y + a.height > b.y ;    //a's bottom left corner passes b's top left corner 
+}
+
+
+function updateScore() {
+    let points = Math.floor(50*Math.random());   //(0-1) * 50  --> (0-50)
+    if ( velocityY < 0) {     //going UP
+        maxScore += points;
+        if(score < maxScore) {
+            score = maxScore;
+        }
+    }
+    else if (velocityY >= 0) {
+        maxScore -= points;
+    }
 }
