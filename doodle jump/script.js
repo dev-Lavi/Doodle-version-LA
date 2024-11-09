@@ -80,7 +80,10 @@ function update()
     //clear canvas and prevent overlapping of image
     context.clearRect(0, 0, board.width, board.height);
 
+    // Update doodler's position based on velocity
     doodler.x += velocityX;
+    velocityY += gravity;  //doodler falls down after jumping
+    doodler.y += velocityY;
 
     //As doodler pass right side of board
     if(doodler.x > boardWidth)
@@ -90,44 +93,48 @@ function update()
     else if(doodler.x + doodler.width < 0)
         doodler.x = boardWidth;   //telepot to end of canvas (right side)
 
-
-    velocityY += gravity;  //doodler falls down after jumping
-    doodler.y += velocityY;
-    
+    // Check for game over if doodler goes off the bottom of the screen
     if(doodler.y > board.height){
         gameOver = true;
+      
     }
+
     // drawing doodler again and again in loop
     context.drawImage(doodler.img, doodler.x, doodler.y,doodler.width,doodler.height);
 
      //platforms
+     // Move platforms and check for collisions
       for(let i = 0; i < platformArray.length; i++){
       let platform = platformArray[i];
 
+      // Make platforms scroll down if the doodler is above a certain height
       if(velocityY < 0 && doodler.y < boardHeight*3/4) { //doodler  is above 3/4 height from bottom
           platform.y -= initialVelocityY ; //slides platform down the canvas
       }
 
+
+      // Check for collision between doodler and platform
       if(detectCollision(doodler, platform) && velocityY >= 0) {
-        velocityY = initialVelocityY;   //jumps on the platform
+        velocityY = initialVelocityY;   //bounce on the platform
       }
 
+      // Draw platform on the canvas
       context.drawImage(platform.img, platform.x, platform.y, platform.width, platform.height);
      }
     
      
-     //clear platforms and add new ones
+     //clear platforms that go off the screen and add new ones
      while(platformArray.length > 0 && platformArray[0].y >= boardHeight) {
         platformArray.shift();  //removes element from array
         newPlatform();   //replace with new platform on top
      }
       
       
-     //scores
+     //Update and display scores
      updateScore();
      context.fillStyle = "black";
      context.font = "16px sans-serif";
-     context.fillText(score, 5, 20);
+     context.fillText("Score: " +score, 5, 20);
 
      if(gameOver) {
         context.fillText("Game Over: Press 'Space to Restart",boardWidth/7, boardHeight*7/8);
@@ -138,26 +145,27 @@ function update()
 
 function moveDoodler(e) {
     if (e.code == "ArrowRight" || e.code == "KeyD") { //move right
-        velocityX = 4;
+        velocityX = 3;
         doodler.img = doodlerRightImg;
     }
     else if (e.code == "ArrowLeft" || e.code == "KeyA") { //move left
-        velocityX = -4;
+        velocityX = -3;
         doodler.img = doodlerLeftImg;
     }
     else if(e.code == "Space" && gameOver) {
-        let doodler = {
-            img : doodlerRightImg,
-            x : doodlerX,  //position of doodler at start from x-axis
-            y : doodlerY,
-            width : doodlerWidth,  //width of doodler
-            height : doodlerHeight
-        } 
-        
+       
+        doodler.x = doodlerX;   //position of doodler at start from x-axis
+        doodler.y = doodlerY;
+        doodler.img = doodlerRightImg;
+        doodler.width = doodlerWidth;
+        doodler.height = doodlerHeight;
         velocityX = 0;
         velocityY = initialVelocityY;
         score = 0;
+        highestY = doodlerY; 
         gameOver = false;
+
+        platformArray = []; // Clears existing platforms
         placePlatforms();
     }
 }
@@ -215,16 +223,13 @@ function detectCollision(a,b) {
            a.y + a.height > b.y ;    //a's bottom left corner passes b's top left corner 
 }
 
-
+let highestY = doodlerY;  // Initialize to doodler's starting y position
 function updateScore() {
-    let points = Math.floor(50*Math.random());   //(0-1) * 50  --> (0-50)
-    if ( velocityY < 0) {     //going UP
-        maxScore += points;
-        if(score < maxScore) {
-            score = maxScore;
-        }
-    }
-    else if (velocityY >= 0) {
-        maxScore -= points;
+    // Only update the score if doodler is moving upwards and reaches a new highest point
+    if (velocityY < 0 && doodler.y < highestY) {
+        highestY = doodler.y;  // Update highest point
+        score++;               // Increment score
     }
 }
+
+
