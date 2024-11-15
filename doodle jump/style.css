@@ -1,9 +1,35 @@
-body {
-    text-align: center;
+* {
+    margin: 0;
+    padding: 0;
 }
 
+body, html {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 
 #board {
-    /*background-color: green;*/
     background-image: url(./doodlejumpbg.png);
+
+    background-size: cover;
+    width: 360px;
+    height: 575px;
+    border: 2px solid black;
+    display: block;
+    margin: 0 auto;
 }
+
+#gameTitle {
+    font-family: 'Arial', sans-serif;
+    font-size: 24px;
+    color: #333;
+    position: absolute;
+    top: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+
+
