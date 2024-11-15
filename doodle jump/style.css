@@ -12,6 +12,7 @@ body, html {
 
 #board {
     background-image: url(./doodlejumpbg.png);
+
     background-size: cover;
     width: 360px;
     height: 575px;
@@ -29,5 +30,6 @@ body, html {
     left: 50%;
     transform: translateX(-50%);
 }
+
 
 
